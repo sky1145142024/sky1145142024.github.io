@@ -67,23 +67,6 @@
                 text-align: center;
             }
         }
-        /* 新增样式：文件存储部分 */
-        .file-section {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        .file-section h2 {
-            color: #4a89dc;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        /* 隐藏原始的脚本部分 */
-        #copyright-script {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -95,7 +78,7 @@
                 <li><a href="#about">关于我</a></li>
                 <li><a href="#projects">项目</a></li>
                 <!-- 添加文件存储导航 -->
-                <li><a href="#files">文件存储</a></li>
+                <li><a href="/文件存储页面地址" target="_blank">文件存储</a></li>
                 <li><a href="#contact">联系方式</a></li>
             </ul>
         </div>
@@ -115,14 +98,6 @@
             <h2>项目</h2>
             <p>这里将展示我的藏品和作品，敬请期待。</p>
         </section>
-        <!-- 添加文件存储部分 -->
-        <section id="files" class="file-section">
-            <h2>文件存储</h2>
-            <p>这里是我收集的 PDF 和图片文件，点击链接可以查看或下载。</p>
-            <ul id="file-list">
-                <!-- 文件列表将通过 JavaScript 动态加载 -->
-            </ul>
-        </section>
         <section id="contact">
             <h2>联系方式</h2>
             <p>邮箱：2076780485@qq.com</p>
@@ -132,29 +107,10 @@
     <footer>
         <p>版权所有 &copy; 2025</p>
     </footer>
-    <!-- 原始脚本部分（已注释） -->
-    <script id="copyright-script">
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const currentYear = new Date().getFullYear();
-        //     document.querySelector('footer p').textContent = '版权所有 &copy; ' + currentYear;
-        // });
-    </script>
-    <!-- 新增的 JavaScript 用于处理文件存储 -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 这里将添加从服务器获取文件列表的 JavaScript 代码
-            // 当前只是示例代码
-            const fileList = [
-                {name: "学习笔记.pdf", size: "2.5MB", date: "2024-11-15", type: "PDF"},
-                {name: "项目截图.png", size: "1.2MB", date: "2024-11-14", type: "PNG"}
-            ];
-            
-            const fileContainer = document.getElementById('file-list');
-            fileList.forEach(file => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `<a href="#" target="_blank">${file.name}</a> - ${file.type} · ${file.size} · ${file.date}`;
-                fileContainer.appendChild(listItem);
-            });
+            const currentYear = new Date().getFullYear();
+            document.querySelector('footer p').textContent = '版权所有 &copy; ' + 2025;
         });
     </script>
 </body>
