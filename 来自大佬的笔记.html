@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的文件库 - 来自大佬的笔记</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        h1 {
+            color: #4a89dc;
+            margin-bottom: 10px;
+        }
+        .description {
+            color: #777;
+            margin-bottom: 20px;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #4a89dc;
+        }
+        .nav a:hover {
+            text-decoration: underline;
+        }
+        .file-section {
+            margin-bottom: 30px;
+        }
+        .file-section h2 {
+            color: #4a89dc;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .upload-btn {
+            background-color: #4a89dc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .upload-btn:hover {
+            background-color: #3a79cc;
+        }
+        .file-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-item a {
+            text-decoration: none;
+            color: #4a89dc;
+        }
+        .file-item a:hover {
+            text-decoration: underline;
+        }
+        .file-info {
+            color: #777;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>来自大佬的笔记</h1>
+        <div class="description">这是我的文件存储库，用于保存和分享我的 PDF 和图片</div>
+    </header>
+
+    <div class="nav">
+        <a href="https://sky1145142024.github.io/" target="_blank">返回主页</a>
+        <a href="https://github.com/sky1145142024" target="_blank">查看 GitHub</a>
+    </div>
+
+    <div class="file-section">
+        <h2>上传文件</h2>
+        <div class="upload-area">
+            <p>点击下方按钮上传 PDF 或图片文件</p>
+            <input type="file" id="file-upload" multiple hidden>
+            <button class="upload-btn" onclick="document.getElementById('file-upload').click()">选择文件</button>
+        </div>
+    </div>
+
+    <div class="file-section">
+        <h2>已上传的文件</h2>
+        <ul class="file-list" id="file-list">
+            <!-- 示例文件，实际使用时会通过 JavaScript 动态添加 -->
+            <li class="file-item">
+                <a href="#" target="_blank">学习笔记.pdf</a>
+                <span class="file-info">PDF · 2.5MB · 2024-11-15</span>
+            </li>
+            <li class="file-item">
+                <a href="#" target="_blank">项目截图.png</a>
+                <span class="file-info">PNG · 1.2MB · 2024-11-14</span>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        // 这里是处理文件上传的 JavaScript 代码
+        document.getElementById('file-upload').addEventListener('change', function(e) {
+            const files = e.target.files;
+            const fileList = document.getElementById('file-list');
+            
+            for (const file of files) {
+                // 创建新的文件列表项
+                const listItem = document.createElement('li');
+                listItem.className = 'file-item';
+                
+                // 创建文件链接
+                const fileLink = document.createElement('a');
+                fileLink.href = URL.createObjectURL(file);
+                fileLink.target = '_blank';
+                fileLink.textContent = file.name;
+                
+                // 创建文件信息
+                const fileInfo = document.createElement('span');
+                fileInfo.className = 'file-info';
+                fileInfo.textContent = `${getFileExtension(file.name).toUpperCase()} · ${formatFileSize(file.size)} · ${formatDate(new Date())}`;
+                
+                // 添加到列表项
+                listItem.appendChild(fileLink);
+                listItem.appendChild(fileInfo);
+                
+                // 添加到文件列表
+                fileList.appendChild(listItem);
+            }
+            
+            // 重置文件输入，以便可以多次上传相同的文件
+            this.value = '';
+        });
+        
+        // 辅助函数：获取文件扩展名
+        function getFileExtension(filename) {
+            return filename.split('.').pop();
+        }
+        
+        // 辅助函数：格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return `${bytes}B`;
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+            if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+            return `${(bytes / (1024 * 1024 * 1024)).toFixed(1)}GB`;
+        }
+        
+        // 辅助函数：格式化日期
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+    </script>
+</body>
+</html>
