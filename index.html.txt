@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人网站</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #000 3px solid;
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        header ul {
+            padding: 0;
+            list-style: none;
+        }
+        header li {
+            display: inline;
+            padding: 0 20px 0 20px;
+        }
+        .showcase {
+            min-height: 400px;
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 50px 0;
+        }
+        .main {
+            padding: 20px;
+            background: #fff;
+            margin-top: 20px;
+        }
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .container {
+                width: 100%;
+            }
+            header li {
+                display: block;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>我的个人网站</h1>
+            <ul>
+                <li><a href="#home">首页</a></li>
+                <li><a href="#about">关于我</a></li>
+                <li><a href="#projects">项目</a></li>
+                <li><a href="#contact">联系方式</a></li>
+            </ul>
+        </div>
+    </header>
+    <section id="showcase" class="showcase">
+        <div class="container">
+            <h1>欢迎来到我的个人网站！</h1>
+            <p>这里是展示我的作品和技术的平台。</p>
+        </div>
+    </section>
+    <div class="container" id="main">
+        <section id="about">
+            <h2>关于我</h2>
+            <p>我是一名热爱技术的开发者，专注于前端开发，喜欢创造交互丰富的网站。</p>
+        </section>
+        <section id="projects">
+            <h2>项目</h2>
+            <p>这里将展示我最近的项目作品，敬请期待。</p>
+        </section>
+        <section id="contact">
+            <h2>联系方式</h2>
+            <p>邮箱：example@email.com</p>
+            <p>GitHub：<a href="https://github.com/yourusername" target="_blank">https://github.com/yourusername</a></p>
+            <p>LinkedIn：<a href="https://linkedin.com/in/yourusername" target="_blank">https://linkedin.com/in/yourusername</a></p>
+        </section>
+    </div>
+    <footer>
+        <p>版权所有 &copy; 2025</p>
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentYear = new Date().getFullYear();
+            document.querySelector('footer p').textContent = '版权所有 &copy; ' + currentYear;
+        });
+    </script>
+</body>
+</html>
