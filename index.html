@@ -10,7 +10,7 @@
             line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #e6f7ff; /* 辅助色调：淡蓝色背景 */
             color: #333;
         }
         .container {
@@ -19,11 +19,11 @@
             overflow: hidden;
         }
         header {
-            background: #333;
+            background: #ff9bbd; /* 主色调：粉色 */
             color: #fff;
             padding-top: 30px;
             min-height: 70px;
-            border-bottom: #000 3px solid;
+            border-bottom: #ff69b4 3px solid; /* 较深的粉色 */
         }
         header a {
             color: #fff;
@@ -41,7 +41,7 @@
         }
         .showcase {
             min-height: 400px;
-            background: #333;
+            background: #ff9bbd; /* 主色调：粉色 */
             color: #fff;
             text-align: center;
             padding: 50px 0;
@@ -50,9 +50,10 @@
             padding: 20px;
             background: #fff;
             margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         footer {
-            background: #333;
+            background: #ff9bbd; /* 主色调：粉色 */
             color: #fff;
             text-align: center;
             padding: 10px 0;
@@ -110,7 +111,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const currentYear = new Date().getFullYear();
-            document.querySelector('footer p').textContent = '版权所有 &copy; ' + 2025;
+            document.querySelector('footer p').textContent = '版权所有 &copy; ' + currentYear;
         });
     </script>
 </body>
