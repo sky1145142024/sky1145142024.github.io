@@ -6,9 +6,10 @@
   <title>登录 - 任务众包平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <!--  Firebase 兼容版脚本（必须和 index.html 一致） -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -23,6 +24,7 @@
           <i class="fa fa-github mr-2"></i> 使用GitHub登录
         </button>
         
+        <!-- 加载状态（handleGitHubCallback 会控制显示/隐藏） -->
         <div id="loading" class="mt-4 text-center hidden">
           <i class="fa fa-spinner fa-spin text-blue-500"></i>
           <p class="mt-2 text-gray-600">正在登录中...</p>
@@ -31,18 +33,21 @@
     </div>
   </div>
 
+  <!-- 脚本加载顺序（和 index.html 一致） -->
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // 处理GitHub登录回调
+    // 页面加载时处理GitHub回调（如果有code参数）
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('code')) {
+        // 有code参数，说明是从GitHub授权回来的，执行登录逻辑
         document.getElementById('loading').classList.remove('hidden');
         document.getElementById('githubLoginBtn').disabled = true;
-        handleGitHubCallback();
+        handleGitHubCallback(); // 调用 auth.js 中的回调处理函数
       }
       
+      // 绑定登录按钮事件
       document.getElementById('githubLoginBtn').addEventListener('click', githubLogin);
     });
   </script>
