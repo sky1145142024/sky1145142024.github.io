@@ -6,7 +6,7 @@
   <title>登录 - 任务众包平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <!--  Firebase 兼容版脚本（必须和 index.html 一致） -->
+  <!-- Firebase 兼容版脚本（保持版本一致） -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -24,7 +24,7 @@
           <i class="fa fa-github mr-2"></i> 使用GitHub登录
         </button>
         
-        <!-- 加载状态（handleGitHubCallback 会控制显示/隐藏） -->
+        <!-- 加载状态 -->
         <div id="loading" class="mt-4 text-center hidden">
           <i class="fa fa-spinner fa-spin text-blue-500"></i>
           <p class="mt-2 text-gray-600">正在登录中...</p>
@@ -33,24 +33,33 @@
     </div>
   </div>
 
-  <!-- 脚本加载顺序（和 index.html 一致） -->
+  <!-- 脚本加载顺序：先 config → 再 auth（关键！） -->
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // 页面加载时处理GitHub回调（如果有code参数）
-    document.addEventListener('DOMContentLoaded', () => {
+    // 等待 auth.js 加载完成（确保 authUtils 已存在）
+    window.addEventListener('load', () => {
       const urlParams = new URLSearchParams(window.location.search);
+      const loginBtn = document.getElementById('githubLoginBtn');
+      const loading = document.getElementById('loading');
+
+      // 1. 处理 GitHub 授权回调（有 code 参数时）
       if (urlParams.get('code')) {
-        // 有code参数，说明是从GitHub授权回来的，执行登录逻辑
-        document.getElementById('loading').classList.remove('hidden');
-        document.getElementById('githubLoginBtn').disabled = true;
-        handleGitHubCallback(); // 调用 auth.js 中的回调处理函数
+        loading.classList.remove('hidden');
+        loginBtn.disabled = true;
+        // 调用 auth.js 中暴露的回调逻辑（通过 authUtils 间接触发，避免直接调用内部函数）
+        // 注：最新 auth.js 已在页面加载时自动处理回调，这里只需控制加载状态
       }
-      
-      // 绑定登录按钮事件
-      document.getElementById('githubLoginBtn').addEventListener('click', githubLogin);
+
+      // 2. 绑定登录按钮点击事件（调用 authUtils 暴露的 githubLogin）
+      loginBtn.addEventListener('click', () => {
+        if (window.authUtils && window.authUtils.githubLogin) {
+          window.authUtils.githubLogin(); // 正确调用全局暴露的登录函数
+        } else {
+          alert('登录功能未加载完成，请刷新页面重试');
+        }
+      });
     });
   </script>
 </body>
 </html>
-
