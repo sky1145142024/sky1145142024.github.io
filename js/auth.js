@@ -29,7 +29,7 @@ function githubLogin() {
   const provider = new firebase.auth.GithubAuthProvider();
   
   // 关键：请求必要的权限（必须包含 user:email，否则 Firebase 验证失败）
-  provider.addScope('user:email'); // 获取用户邮箱权限
+
   provider.addScope('read:user'); // 获取用户基本信息（头像、名称等）
 
   // 重定向到 GitHub 授权页
@@ -145,3 +145,4 @@ if (window.location.pathname.includes('login.html')) {
   // 页面加载完成后处理回调
   window.addEventListener('load', handleGitHubCallback);
 }
+
