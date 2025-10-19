@@ -6,6 +6,7 @@ const config = {
   storageBucket: "pideweb-50b61.firebasestorage.app",
   messagingSenderId: "600392139713",
   appId: "1:600392139713:web:2627688a5fbba20fc5a540",
+  measurementId: "G-ZS7HXH1F72"
   },
   github: {
     clientId: "Ov23liUHw8DobU7utxCH", // 从 GitHub OAuth 应用获取
@@ -17,4 +18,5 @@ const config = {
 firebase.initializeApp(config.firebase);
 const db = firebase.firestore();
 const auth = firebase.auth();
+
 
