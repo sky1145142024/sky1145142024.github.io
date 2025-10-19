@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - 任务众包平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="p-6">
+        <div class="text-center mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">登录到任务众包平台</h2>
+          <p class="mt-2 text-gray-600">使用GitHub账号安全登录</p>
+        </div>
+        
+        <button id="githubLoginBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center">
+          <i class="fa fa-github mr-2"></i> 使用GitHub登录
+        </button>
+        
+        <div id="loading" class="mt-4 text-center hidden">
+          <i class="fa fa-spinner fa-spin text-blue-500"></i>
+          <p class="mt-2 text-gray-600">正在登录中...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // 处理GitHub登录回调
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('code')) {
+        document.getElementById('loading').classList.remove('hidden');
+        document.getElementById('githubLoginBtn').disabled = true;
+        handleGitHubCallback();
+      }
+      
+      document.getElementById('githubLoginBtn').addEventListener('click', githubLogin);
+    });
+  </script>
+</body>
+</html>
