@@ -72,16 +72,21 @@
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
-    // 登录按钮事件
-    document.getElementById('loginBtn').addEventListener('click', githubLogin);
-    
-    // 检查登录状态，如果已登录则跳转到个人中心
+  // 登录按钮事件：直接跳转到 login.html（简单可靠）
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    window.location.href = 'login.html'; // 明确指定跳转路径
+  });
+  
+  // 检查登录状态：已登录则跳个人中心，未登录不操作
+  if (typeof checkAuthStatus === 'function') { // 避免函数未定义报错
     checkAuthStatus().then(() => {
       window.location.href = 'dashboard.html';
     }).catch(() => {
-      // 未登录，保持在主页
+      // 未登录，留在主页
     });
+  }
   </script>
 </body>
 </html>
+
 
