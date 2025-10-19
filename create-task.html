@@ -6,12 +6,13 @@
   <title>发布任务 - 任务众包平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <!-- Firebase 脚本（保持不变） -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50">
-  <!-- 导航栏 -->
+  <!-- 导航栏（保持不变） -->
   <nav class="bg-white shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between h-16">
@@ -29,10 +30,12 @@
     </div>
   </nav>
 
+  <!-- 表单内容（保持不变） -->
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <h1 class="text-3xl font-bold mb-6">发布新任务</h1>
     
     <form id="createTaskForm" class="bg-white p-6 rounded-lg shadow-md">
+      <!-- 表单字段（保持不变） -->
       <div class="mb-4">
         <label for="title" class="block text-gray-700 font-medium mb-2">任务标题</label>
         <input type="text" id="title" name="title" required
@@ -67,10 +70,33 @@
     </form>
   </div>
 
+  <!-- 脚本部分（修正关键错误） -->
   <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
+  <script src="js/auth.js"></script> <!-- 假设 logout 函数在这个文件里 -->
   <script>
-    // 页面加载时检查登录状态
+    // 1. 初始化 Firebase（补充 db 定义）
+    if (!firebase.apps.length) {
+      firebase.initializeApp(config.firebase);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore(); // 关键：定义 db 变量，用于操作数据库
+
+    // 2. 定义 checkAuthStatus 函数（解决 "未定义" 错误）
+    function checkAuthStatus() {
+      return new Promise((resolve, reject) => {
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            // 用户已登录，返回用户信息
+            resolve(user);
+          } else {
+            // 用户未登录，跳转到登录页
+            reject(new Error('用户未登录'));
+          }
+        });
+      });
+    }
+
+    // 3. 页面加载逻辑（保持不变，但现在依赖的函数已定义）
     document.addEventListener('DOMContentLoaded', () => {
       let currentUser;
       
@@ -91,7 +117,7 @@
           const deadline = document.getElementById('deadline').value;
           
           try {
-            // 保存任务到Firestore
+            // 保存任务到Firestore（现在 db 已定义，不会报错）
             await db.collection('tasks').add({
               title: title,
               description: description,
@@ -118,13 +144,13 @@
             }, 3000);
             
           } catch (error) {
-            console.error('Error creating task:', error);
+            console.error('发布任务失败:', error);
             document.getElementById('errorMessage').classList.remove('hidden');
             document.getElementById('successMessage').classList.add('hidden');
           }
         });
         
-        // 退出登录
+        // 退出登录（确保 js/auth.js 中定义了 logout 函数）
         document.getElementById('logoutBtn').addEventListener('click', logout);
         
       }).catch(() => {
