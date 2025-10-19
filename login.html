@@ -6,7 +6,7 @@
   <title>登录 - 任务众包平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <!-- Firebase 兼容版脚本（保持版本一致） -->
+  <!-- Firebase 脚本 -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
@@ -20,11 +20,11 @@
           <p class="mt-2 text-gray-600">使用GitHub账号安全登录</p>
         </div>
         
+        <!-- 登录按钮：移除 onclick，改用纯JS绑定 -->
         <button id="githubLoginBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center">
           <i class="fa fa-github mr-2"></i> 使用GitHub登录
         </button>
         
-        <!-- 加载状态 -->
         <div id="loading" class="mt-4 text-center hidden">
           <i class="fa fa-spinner fa-spin text-blue-500"></i>
           <p class="mt-2 text-gray-600">正在登录中...</p>
@@ -33,33 +33,36 @@
     </div>
   </div>
 
-  <!-- 脚本加载顺序：先 config → 再 auth（关键！） -->
+  <!-- 脚本加载 -->
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // 等待 auth.js 加载完成（确保 authUtils 已存在）
-    window.addEventListener('load', () => {
-      const urlParams = new URLSearchParams(window.location.search);
+    // 等待所有脚本加载完成
+    window.onload = function() {
       const loginBtn = document.getElementById('githubLoginBtn');
       const loading = document.getElementById('loading');
+      const urlParams = new URLSearchParams(window.location.search);
 
-      // 1. 处理 GitHub 授权回调（有 code 参数时）
+      // 处理GitHub回调（有code参数时）
       if (urlParams.get('code')) {
         loading.classList.remove('hidden');
         loginBtn.disabled = true;
-        // 调用 auth.js 中暴露的回调逻辑（通过 authUtils 间接触发，避免直接调用内部函数）
-        // 注：最新 auth.js 已在页面加载时自动处理回调，这里只需控制加载状态
       }
 
-      // 2. 绑定登录按钮点击事件（调用 authUtils 暴露的 githubLogin）
-      loginBtn.addEventListener('click', () => {
-        if (window.authUtils && window.authUtils.githubLogin) {
-          window.authUtils.githubLogin(); // 正确调用全局暴露的登录函数
-        } else {
-          alert('登录功能未加载完成，请刷新页面重试');
+      // 手动绑定登录按钮事件（关键：直接定义全局函数）
+      window.githubLogin = function() {
+        if (typeof firebase === 'undefined') {
+          alert('Firebase未加载');
+          return;
         }
-      });
-    });
+        const provider = new firebase.auth.GithubAuthProvider();
+        provider.addScope('read:user');
+        firebase.auth().signInWithRedirect(provider);
+      };
+
+      // 给按钮绑定点击事件
+      loginBtn.addEventListener('click', window.githubLogin);
+    };
   </script>
 </body>
 </html>
