@@ -58,32 +58,40 @@
 
       // 3. 处理GitHub回调（用Firebase的getRedirectResult，无需代理）
       const handleCallback = async () => {
-        try {
-          // 显示加载状态
-          loginBtn.disabled = true;
-          document.getElementById('loading').classList.remove('hidden');
+  const loginBtn = document.getElementById('githubLoginBtn');
+  loginBtn.disabled = true;
+  document.getElementById('loading').classList.remove('hidden');
 
-          // Firebase自动获取回调结果（无需自己交换code）
-          const result = await auth.getRedirectResult();
-          if (result.user) {
-            // 登录成功：result.user 就是当前登录用户
-            console.log('登录成功，用户信息:', result.user);
-            alert(`登录成功！欢迎 ${result.user.displayName}`);
-            window.location.href = 'dashboard.html'; // 跳转到首页
-          } else {
-            // 没有用户信息：说明不是回调，或授权被取消
-            console.log('未检测到登录用户（非回调或授权取消）');
-            loginBtn.disabled = false;
-            document.getElementById('loading').classList.add('hidden');
-          }
-        } catch (err) {
-          // 回调处理失败（如授权被拒、配置错误）
-          console.error('回调处理失败:', err);
-          alert(`登录失败：${err.message}`);
-          loginBtn.disabled = false;
-          document.getElementById('loading').classList.add('hidden');
-        }
-      };
+  try {
+    // 1. 先试Firebase的回调结果（正常授权会走这里）
+    const result = await auth.getRedirectResult();
+    
+    // 2. 重点：不管回调结果，直接查当前登录用户（绕开配置问题）
+    const currentUser = auth.currentUser;
+    
+    if (currentUser) {
+      // 有用户信息 → 强制跳转到dashboard，不依赖任何配置
+      console.log('找到用户！立刻跳转', currentUser.displayName);
+      window.location.href = 'dashboard.html'; 
+    } else {
+      // 没用户 → 检查是不是用户取消授权
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('error')) {
+        alert('你取消了授权，点击按钮重新登录');
+      } else {
+        console.log('等待用户点击登录');
+      }
+      // 恢复按钮
+      loginBtn.disabled = false;
+      document.getElementById('loading').classList.add('hidden');
+    }
+  } catch (err) {
+    console.error('登录错:', err);
+    alert(`登录失败：${err.message}`);
+    loginBtn.disabled = false;
+    document.getElementById('loading').classList.add('hidden');
+  }
+};
 
       // 页面加载时自动执行回调处理
       handleCallback();
@@ -91,3 +99,4 @@
   </script>
 </body>
 </html>
+
