@@ -6,10 +6,9 @@
   <title>登录 - 任务众包平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <!-- Firebase 脚本 -->
+  <!-- 1. 先加载 Firebase 核心脚本（必须最先加载） -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -20,7 +19,7 @@
           <p class="mt-2 text-gray-600">使用GitHub账号安全登录</p>
         </div>
         
-        <!-- 登录按钮：移除 onclick，改用纯JS绑定 -->
+        <!-- 登录按钮：不直接写 onclick，避免提前调用 -->
         <button id="githubLoginBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center">
           <i class="fa fa-github mr-2"></i> 使用GitHub登录
         </button>
@@ -33,36 +32,52 @@
     </div>
   </div>
 
-  <!-- 脚本加载 -->
+  <!-- 2. 加载配置文件 -->
   <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
+
+  <!-- 3. 先定义 githubLogin 函数（关键：在调用前定义） -->
   <script>
-    // 等待所有脚本加载完成
-    window.onload = function() {
+    // 确保 Firebase 已初始化
+    if (typeof firebase === 'undefined') {
+      alert('Firebase 未加载，请检查网络');
+    } else {
+      // 强制在全局作用域定义 githubLogin 函数
+      window.githubLogin = function() {
+        const provider = new firebase.auth.GithubAuthProvider();
+        provider.addScope('read:user'); // 仅请求公开资料
+        firebase.auth().signInWithRedirect(provider);
+      };
+    }
+  </script>
+
+  <!-- 4. 最后加载 auth.js（如果需要） -->
+  <script src="js/auth.js"></script>
+
+  <!-- 5. 绑定按钮点击事件（此时 githubLogin 已定义） -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
       const loginBtn = document.getElementById('githubLoginBtn');
       const loading = document.getElementById('loading');
       const urlParams = new URLSearchParams(window.location.search);
 
-      // 处理GitHub回调（有code参数时）
+      // 处理 GitHub 回调（有 code 时显示加载状态）
       if (urlParams.get('code')) {
         loading.classList.remove('hidden');
         loginBtn.disabled = true;
       }
 
-      // 手动绑定登录按钮事件（关键：直接定义全局函数）
-      window.githubLogin = function() {
-        if (typeof firebase === 'undefined') {
-          alert('Firebase未加载');
-          return;
+      // 绑定点击事件（此时 window.githubLogin 一定存在）
+      loginBtn.addEventListener('click', function() {
+        if (window.githubLogin) {
+          window.githubLogin(); // 调用全局函数
+        } else {
+          alert('登录功能未就绪，请刷新页面');
         }
-        const provider = new firebase.auth.GithubAuthProvider();
-        provider.addScope('read:user');
-        firebase.auth().signInWithRedirect(provider);
-      };
-
-      // 给按钮绑定点击事件
-      loginBtn.addEventListener('click', window.githubLogin);
-    };
+      });
+    });
   </script>
 </body>
 </html>
+</body>
+</html>
+
