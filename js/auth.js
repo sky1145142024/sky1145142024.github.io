@@ -44,62 +44,50 @@ function githubLogin() {
  * 处理 GitHub 授权回调（登录页加载时执行）
  */
 async function handleGitHubCallback() {
-  if (!auth) {
-    console.error('auth 实例未初始化');
-    return;
-  }
+  if (!auth) return;
 
   try {
-    // 1. 从 URL 中提取 GitHub 回调的临时 code
+    // 1. 获取临时 code 并交换 Token（不变）
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    if (!code) {
-      console.log('未检测到授权 code，可能不是回调请求');
-      return;
-    }
+    if (!code) return;
 
-    // 2. 调用 Vercel 后端交换 access_token
-    const exchangeResponse = await fetch('https://github-oauth-proxy-cyan.vercel.app/api/exchange', {
+    const response = await fetch('https://github-oauth-proxy-cyan.vercel.app/api/exchange', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ code: code })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code })
     });
+    const { token } = await response.json();
+    if (!token) throw new Error('未获取到 Token');
 
-    if (!exchangeResponse.ok) {
-      const errorData = await exchangeResponse.json();
-      throw new Error(`后端交换失败：${errorData.error || '未知错误'}`);
-    }
-
-    const { token } = await exchangeResponse.json();
-    if (!token) {
-      throw new Error('未从后端获取到有效的 access_token');
-    }
-
-    // 3. 使用获取到的 Token 完成 Firebase 登录
+    // 2. 关键修改：用 Token 登录 Firebase 后，补充用户信息
     const credential = firebase.auth.GithubAuthProvider.credential(token);
-    const userCredential = await auth.signInWithCredential(credential);
-    
+    const { user } = await auth.signInWithCredential(credential);
+
+    // 3. 手动设置用户显示名和头像（即使无邮箱也能正常显示）
+    if (user) {
+      // 调用 GitHub API 获取用户基本信息（用已获取的 Token）
+      const githubUserRes = await fetch('https://api.github.com/user', {
+        headers: { 'Authorization': `token ${token}` }
+      });
+      const githubUser = await githubUserRes.json();
+
+      // 更新 Firebase 用户信息（昵称、头像）
+      await user.updateProfile({
+        displayName: githubUser.login || 'GitHub 用户', // 用 GitHub 用户名
+        photoURL: githubUser.avatar_url || 'https://via.placeholder.com/150' // 用 GitHub 头像
+      });
+    }
+
     // 4. 登录成功，跳转到个人中心
     window.location.href = 'dashboard.html';
 
   } catch (error) {
-    console.error('登录回调处理失败:', error);
-    // 错误分类提示
-    let errorMsg = '登录失败，请重试';
-    if (error.message.includes('Bad credentials')) {
-      errorMsg = 'GitHub 授权信息无效，请重新授权';
-    } else if (error.message.includes('未获取到 Token')) {
-      errorMsg = '获取授权信息失败，请重试';
-    }
-    alert(errorMsg);
-    // 跳回登录页重新尝试
+    console.error('登录失败:', error);
+    alert('登录失败，请重试');
     window.location.href = 'login.html';
   }
 }
-
 /**
  * 检查当前登录状态
  * @returns {Promise} 已登录则返回用户信息，未登录则 reject
@@ -145,4 +133,5 @@ if (window.location.pathname.includes('login.html')) {
   // 页面加载完成后处理回调
   window.addEventListener('load', handleGitHubCallback);
 }
+
 
