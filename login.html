@@ -33,49 +33,48 @@
   </div>
 
   <!-- 先加载配置，再初始化 Firebase -->
-  <script src="js/config.js"></script>
-  <script>
-    // 初始化 Firebase（只初始化一次）
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-    const auth = firebase.auth(); // 认证实例
-    const db = firebase.firestore(); // 数据库实例（如果需要）
+  <!-- login.html 中的脚本部分 -->
+<script src="js/config.js"></script> <!-- 确保路径正确 -->
+<script>
+  // 从 config.firebase 读取配置（和 config.js 结构匹配）
+  if (!firebase.apps.length) {
+    firebase.initializeApp(config.firebase); // 关键：用 config.firebase 而不是 firebaseConfig
+  }
+  const auth = firebase.auth();
 
-    // 登录按钮事件
-    document.getElementById('githubLoginBtn').addEventListener('click', () => {
-      const provider = new firebase.auth.GithubAuthProvider();
-      provider.addScope('read:user'); // 仅请求公开资料
-      auth.signInWithRedirect(provider);
-    });
+  // 登录按钮事件（不变）
+  document.getElementById('githubLoginBtn').addEventListener('click', () => {
+    const provider = new firebase.auth.GithubAuthProvider();
+    provider.addScope('read:user');
+    auth.signInWithRedirect(provider);
+  });
 
-    // 处理GitHub回调（有code参数时）
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('code')) {
-      document.getElementById('loading').classList.remove('hidden');
-      document.getElementById('githubLoginBtn').disabled = true;
-      
-      // 交换Token并登录（复用之前的后端接口）
-      async function handleLogin() {
-        try {
-          const code = urlParams.get('code');
-          const res = await fetch('https://github-oauth-proxy-cyan.vercel.app/api/exchange', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code })
-          });
-          const { token } = await res.json();
-          const credential = firebase.auth.GithubAuthProvider.credential(token);
-          await auth.signInWithCredential(credential);
-          window.location.href = 'dashboard.html'; // 登录成功跳转
-        } catch (err) {
-          console.error('登录失败:', err);
-          alert('登录失败，请重试');
-          window.location.href = 'login.html';
-        }
+  // 处理回调（不变）
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('code')) {
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('githubLoginBtn').disabled = true;
+    
+    async function handleLogin() {
+      try {
+        const code = urlParams.get('code');
+        const res = await fetch('https://github-oauth-proxy-cyan.vercel.app/api/exchange', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code })
+        });
+        const { token } = await res.json();
+        const credential = firebase.auth.GithubAuthProvider.credential(token);
+        await auth.signInWithCredential(credential);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        console.error('登录失败:', err);
+        alert('登录失败，请重试');
       }
-      handleLogin();
     }
-  </script>
+    handleLogin();
+  }
+</script>
 </body>
 </html>
+
