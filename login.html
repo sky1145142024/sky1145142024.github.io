@@ -6,11 +6,14 @@
   <title>登录 - 任务众包平台</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <!-- 1. 先加载 Firebase 核心脚本（必须最先加载） -->
+  
+  <!-- 引入 Firebase 兼容版脚本（带 compat，简单不易错） -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 </head>
 <body class="bg-gray-50">
+  <!-- 页面内容和之前一样 -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
       <div class="p-6">
@@ -18,12 +21,9 @@
           <h2 class="text-2xl font-bold text-gray-900">登录到任务众包平台</h2>
           <p class="mt-2 text-gray-600">使用GitHub账号安全登录</p>
         </div>
-        
-        <!-- 登录按钮：不直接写 onclick，避免提前调用 -->
         <button id="githubLoginBtn" class="w-full bg-gray-800 hover:bg-gray-700 text-white py-3 px-4 rounded-md font-medium flex items-center justify-center">
           <i class="fa fa-github mr-2"></i> 使用GitHub登录
         </button>
-        
         <div id="loading" class="mt-4 text-center hidden">
           <i class="fa fa-spinner fa-spin text-blue-500"></i>
           <p class="mt-2 text-gray-600">正在登录中...</p>
@@ -32,52 +32,50 @@
     </div>
   </div>
 
-  <!-- 2. 加载配置文件 -->
+  <!-- 先加载配置，再初始化 Firebase -->
   <script src="js/config.js"></script>
-
-  <!-- 3. 先定义 githubLogin 函数（关键：在调用前定义） -->
   <script>
-    // 确保 Firebase 已初始化
-    if (typeof firebase === 'undefined') {
-      alert('Firebase 未加载，请检查网络');
-    } else {
-      // 强制在全局作用域定义 githubLogin 函数
-      window.githubLogin = function() {
-        const provider = new firebase.auth.GithubAuthProvider();
-        provider.addScope('read:user'); // 仅请求公开资料
-        firebase.auth().signInWithRedirect(provider);
-      };
+    // 初始化 Firebase（只初始化一次）
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth(); // 认证实例
+    const db = firebase.firestore(); // 数据库实例（如果需要）
+
+    // 登录按钮事件
+    document.getElementById('githubLoginBtn').addEventListener('click', () => {
+      const provider = new firebase.auth.GithubAuthProvider();
+      provider.addScope('read:user'); // 仅请求公开资料
+      auth.signInWithRedirect(provider);
+    });
+
+    // 处理GitHub回调（有code参数时）
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('code')) {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('githubLoginBtn').disabled = true;
+      
+      // 交换Token并登录（复用之前的后端接口）
+      async function handleLogin() {
+        try {
+          const code = urlParams.get('code');
+          const res = await fetch('https://github-oauth-proxy-cyan.vercel.app/api/exchange', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+          });
+          const { token } = await res.json();
+          const credential = firebase.auth.GithubAuthProvider.credential(token);
+          await auth.signInWithCredential(credential);
+          window.location.href = 'dashboard.html'; // 登录成功跳转
+        } catch (err) {
+          console.error('登录失败:', err);
+          alert('登录失败，请重试');
+          window.location.href = 'login.html';
+        }
+      }
+      handleLogin();
     }
   </script>
-
-  <!-- 4. 最后加载 auth.js（如果需要） -->
-  <script src="js/auth.js"></script>
-
-  <!-- 5. 绑定按钮点击事件（此时 githubLogin 已定义） -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const loginBtn = document.getElementById('githubLoginBtn');
-      const loading = document.getElementById('loading');
-      const urlParams = new URLSearchParams(window.location.search);
-
-      // 处理 GitHub 回调（有 code 时显示加载状态）
-      if (urlParams.get('code')) {
-        loading.classList.remove('hidden');
-        loginBtn.disabled = true;
-      }
-
-      // 绑定点击事件（此时 window.githubLogin 一定存在）
-      loginBtn.addEventListener('click', function() {
-        if (window.githubLogin) {
-          window.githubLogin(); // 调用全局函数
-        } else {
-          alert('登录功能未就绪，请刷新页面');
-        }
-      });
-    });
-  </script>
 </body>
 </html>
-</body>
-</html>
-
